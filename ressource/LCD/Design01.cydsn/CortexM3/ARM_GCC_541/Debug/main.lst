@@ -1,0 +1,730 @@
+ARM GAS  C:\Users\bourg\AppData\Local\Temp\ccErYR5t.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.syntax unified
+  15              		.file	"main.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.main,"ax",%progbits
+  20              		.align	2
+  21              		.global	main
+  22              		.thumb
+  23              		.thumb_func
+  24              		.type	main, %function
+  25              	main:
+  26              	.LFB63:
+  27              		.file 1 "main.c"
+   1:main.c        **** /* ========================================
+   2:main.c        ****  *
+   3:main.c        ****  * Copyright YOUR COMPANY, THE YEAR
+   4:main.c        ****  * All Rights Reserved
+   5:main.c        ****  * UNPUBLISHED, LICENSED SOFTWARE.
+   6:main.c        ****  *
+   7:main.c        ****  * CONFIDENTIAL AND PROPRIETARY INFORMATION
+   8:main.c        ****  * WHICH IS THE PROPERTY OF your company.
+   9:main.c        ****  *
+  10:main.c        ****  * ========================================
+  11:main.c        **** */
+  12:main.c        **** #include "project.h"
+  13:main.c        **** #include "keypad.h"
+  14:main.c        **** int main(void)
+  15:main.c        **** {
+  28              		.loc 1 15 0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32 0000 08B5     		push	{r3, lr}
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 3, -8
+  35              		.cfi_offset 14, -4
+  16:main.c        ****     CyGlobalIntEnable; /* Enable global interrupts. */
+  36              		.loc 1 16 0
+  37              		.syntax unified
+  38              	@ 16 "main.c" 1
+  39 0002 62B6     		CPSIE   i
+  40              	@ 0 "" 2
+  41              	.LVL0:
+ARM GAS  C:\Users\bourg\AppData\Local\Temp\ccErYR5t.s 			page 2
+
+
+  17:main.c        **** 
+  18:main.c        ****     /* Place your initialization/startup code here (e.g. MyInst_Start()) */
+  19:main.c        ****     //MyInst_Start();
+  20:main.c        ****     
+  21:main.c        ****     //LedPin_Start();
+  22:main.c        ****     
+  23:main.c        ****     uint8_t was_btn_pressed = 0;
+  24:main.c        ****     
+  25:main.c        ****     keypadInit ();
+  42              		.loc 1 25 0
+  43              		.thumb
+  44              		.syntax unified
+  45 0004 FFF7FEFF 		bl	keypadInit
+  46              	.LVL1:
+  26:main.c        ****     keypadScan();
+  47              		.loc 1 26 0
+  48 0008 FFF7FEFF 		bl	keypadScan
+  49              	.LVL2:
+  27:main.c        ****     
+  28:main.c        ****     
+  29:main.c        ****     LCD_Char_1_Init();
+  50              		.loc 1 29 0
+  51 000c FFF7FEFF 		bl	LCD_Char_1_Init
+  52              	.LVL3:
+  30:main.c        ****     
+  31:main.c        ****             
+  32:main.c        ****     LCD_Char_1_ClearDisplay();
+  53              		.loc 1 32 0
+  54 0010 0120     		movs	r0, #1
+  55 0012 FFF7FEFF 		bl	LCD_Char_1_WriteControl
+  56              	.LVL4:
+  57              	.L2:
+  33:main.c        ****     //LCD_Char_1_Position(0);
+  34:main.c        ****         
+  35:main.c        ****     
+  36:main.c        **** 
+  37:main.c        ****     for(;;)
+  38:main.c        ****     {
+  39:main.c        ****         LCD_Char_1_ClearDisplay();
+  58              		.loc 1 39 0 discriminator 1
+  59 0016 0120     		movs	r0, #1
+  60 0018 FFF7FEFF 		bl	LCD_Char_1_WriteControl
+  61              	.LVL5:
+  40:main.c        ****         LCD_Char_1_PrintNumber(keypadScan()-48);
+  62              		.loc 1 40 0 discriminator 1
+  63 001c FFF7FEFF 		bl	keypadScan
+  64              	.LVL6:
+  65 0020 3038     		subs	r0, r0, #48
+  66 0022 80B2     		uxth	r0, r0
+  67 0024 FFF7FEFF 		bl	LCD_Char_1_PrintU32Number
+  68              	.LVL7:
+  41:main.c        ****         CyDelay(500);
+  69              		.loc 1 41 0 discriminator 1
+  70 0028 4FF4FA70 		mov	r0, #500
+  71 002c FFF7FEFF 		bl	CyDelay
+  72              	.LVL8:
+  73 0030 F1E7     		b	.L2
+ARM GAS  C:\Users\bourg\AppData\Local\Temp\ccErYR5t.s 			page 3
+
+
+  74              		.cfi_endproc
+  75              	.LFE63:
+  76              		.size	main, .-main
+  77 0032 00BF     		.text
+  78              	.Letext0:
+  79              		.file 2 "c:\\program files (x86)\\cypress\\psoc creator\\4.4\\psoc creator\\import\\gnu\\arm\\5.4.
+  80              		.file 3 "c:\\program files (x86)\\cypress\\psoc creator\\4.4\\psoc creator\\import\\gnu\\arm\\5.4.
+  81              		.file 4 "Generated_Source\\PSoC5/cytypes.h"
+  82              		.file 5 "keypad.h"
+  83              		.file 6 "Generated_Source\\PSoC5/LCD_Char_1.h"
+  84              		.file 7 "Generated_Source\\PSoC5/CyLib.h"
+  85              		.file 8 "Generated_Source\\PSoC5/core_cm3.h"
+  86              		.section	.debug_info,"",%progbits
+  87              	.Ldebug_info0:
+  88 0000 A0010000 		.4byte	0x1a0
+  89 0004 0400     		.2byte	0x4
+  90 0006 00000000 		.4byte	.Ldebug_abbrev0
+  91 000a 04       		.byte	0x4
+  92 000b 01       		.uleb128 0x1
+  93 000c 67000000 		.4byte	.LASF25
+  94 0010 0C       		.byte	0xc
+  95 0011 93010000 		.4byte	.LASF26
+  96 0015 E5010000 		.4byte	.LASF27
+  97 0019 00000000 		.4byte	.Ldebug_ranges0+0
+  98 001d 00000000 		.4byte	0
+  99 0021 00000000 		.4byte	.Ldebug_line0
+ 100 0025 02       		.uleb128 0x2
+ 101 0026 01       		.byte	0x1
+ 102 0027 06       		.byte	0x6
+ 103 0028 D9010000 		.4byte	.LASF0
+ 104 002c 03       		.uleb128 0x3
+ 105 002d 18000000 		.4byte	.LASF4
+ 106 0031 02       		.byte	0x2
+ 107 0032 1D       		.byte	0x1d
+ 108 0033 37000000 		.4byte	0x37
+ 109 0037 02       		.uleb128 0x2
+ 110 0038 01       		.byte	0x1
+ 111 0039 08       		.byte	0x8
+ 112 003a 59000000 		.4byte	.LASF1
+ 113 003e 02       		.uleb128 0x2
+ 114 003f 02       		.byte	0x2
+ 115 0040 05       		.byte	0x5
+ 116 0041 BA010000 		.4byte	.LASF2
+ 117 0045 02       		.uleb128 0x2
+ 118 0046 02       		.byte	0x2
+ 119 0047 07       		.byte	0x7
+ 120 0048 07010000 		.4byte	.LASF3
+ 121 004c 03       		.uleb128 0x3
+ 122 004d 22000000 		.4byte	.LASF5
+ 123 0051 02       		.byte	0x2
+ 124 0052 3F       		.byte	0x3f
+ 125 0053 57000000 		.4byte	0x57
+ 126 0057 02       		.uleb128 0x2
+ 127 0058 04       		.byte	0x4
+ 128 0059 05       		.byte	0x5
+ 129 005a C4010000 		.4byte	.LASF6
+ 130 005e 02       		.uleb128 0x2
+ARM GAS  C:\Users\bourg\AppData\Local\Temp\ccErYR5t.s 			page 4
+
+
+ 131 005f 04       		.byte	0x4
+ 132 0060 07       		.byte	0x7
+ 133 0061 F5000000 		.4byte	.LASF7
+ 134 0065 02       		.uleb128 0x2
+ 135 0066 08       		.byte	0x8
+ 136 0067 05       		.byte	0x5
+ 137 0068 85010000 		.4byte	.LASF8
+ 138 006c 02       		.uleb128 0x2
+ 139 006d 08       		.byte	0x8
+ 140 006e 07       		.byte	0x7
+ 141 006f 42000000 		.4byte	.LASF9
+ 142 0073 04       		.uleb128 0x4
+ 143 0074 04       		.byte	0x4
+ 144 0075 05       		.byte	0x5
+ 145 0076 696E7400 		.ascii	"int\000"
+ 146 007a 02       		.uleb128 0x2
+ 147 007b 04       		.byte	0x4
+ 148 007c 07       		.byte	0x7
+ 149 007d 3A010000 		.4byte	.LASF10
+ 150 0081 03       		.uleb128 0x3
+ 151 0082 61010000 		.4byte	.LASF11
+ 152 0086 03       		.byte	0x3
+ 153 0087 18       		.byte	0x18
+ 154 0088 2C000000 		.4byte	0x2c
+ 155 008c 03       		.uleb128 0x3
+ 156 008d 69010000 		.4byte	.LASF12
+ 157 0091 03       		.byte	0x3
+ 158 0092 2C       		.byte	0x2c
+ 159 0093 4C000000 		.4byte	0x4c
+ 160 0097 05       		.uleb128 0x5
+ 161 0098 33010000 		.4byte	.LASF13
+ 162 009c 04       		.byte	0x4
+ 163 009d E901     		.2byte	0x1e9
+ 164 009f 45000000 		.4byte	0x45
+ 165 00a3 02       		.uleb128 0x2
+ 166 00a4 04       		.byte	0x4
+ 167 00a5 04       		.byte	0x4
+ 168 00a6 3C000000 		.4byte	.LASF14
+ 169 00aa 02       		.uleb128 0x2
+ 170 00ab 08       		.byte	0x8
+ 171 00ac 04       		.byte	0x4
+ 172 00ad 27010000 		.4byte	.LASF15
+ 173 00b1 02       		.uleb128 0x2
+ 174 00b2 01       		.byte	0x1
+ 175 00b3 08       		.byte	0x8
+ 176 00b4 9A010000 		.4byte	.LASF16
+ 177 00b8 02       		.uleb128 0x2
+ 178 00b9 04       		.byte	0x4
+ 179 00ba 07       		.byte	0x7
+ 180 00bb 71010000 		.4byte	.LASF17
+ 181 00bf 02       		.uleb128 0x2
+ 182 00c0 08       		.byte	0x8
+ 183 00c1 04       		.byte	0x4
+ 184 00c2 CD010000 		.4byte	.LASF18
+ 185 00c6 06       		.uleb128 0x6
+ 186 00c7 2E010000 		.4byte	.LASF28
+ 187 00cb 01       		.byte	0x1
+ARM GAS  C:\Users\bourg\AppData\Local\Temp\ccErYR5t.s 			page 5
+
+
+ 188 00cc 0E       		.byte	0xe
+ 189 00cd 73000000 		.4byte	0x73
+ 190 00d1 00000000 		.4byte	.LFB63
+ 191 00d5 32000000 		.4byte	.LFE63-.LFB63
+ 192 00d9 01       		.uleb128 0x1
+ 193 00da 9C       		.byte	0x9c
+ 194 00db 50010000 		.4byte	0x150
+ 195 00df 07       		.uleb128 0x7
+ 196 00e0 2C000000 		.4byte	.LASF29
+ 197 00e4 01       		.byte	0x1
+ 198 00e5 17       		.byte	0x17
+ 199 00e6 81000000 		.4byte	0x81
+ 200 00ea 00       		.byte	0
+ 201 00eb 08       		.uleb128 0x8
+ 202 00ec 08000000 		.4byte	.LVL1
+ 203 00f0 61010000 		.4byte	0x161
+ 204 00f4 08       		.uleb128 0x8
+ 205 00f5 0C000000 		.4byte	.LVL2
+ 206 00f9 6C010000 		.4byte	0x16c
+ 207 00fd 08       		.uleb128 0x8
+ 208 00fe 10000000 		.4byte	.LVL3
+ 209 0102 77010000 		.4byte	0x177
+ 210 0106 09       		.uleb128 0x9
+ 211 0107 16000000 		.4byte	.LVL4
+ 212 010b 82010000 		.4byte	0x182
+ 213 010f 19010000 		.4byte	0x119
+ 214 0113 0A       		.uleb128 0xa
+ 215 0114 01       		.uleb128 0x1
+ 216 0115 50       		.byte	0x50
+ 217 0116 01       		.uleb128 0x1
+ 218 0117 31       		.byte	0x31
+ 219 0118 00       		.byte	0
+ 220 0119 09       		.uleb128 0x9
+ 221 011a 1C000000 		.4byte	.LVL5
+ 222 011e 82010000 		.4byte	0x182
+ 223 0122 2C010000 		.4byte	0x12c
+ 224 0126 0A       		.uleb128 0xa
+ 225 0127 01       		.uleb128 0x1
+ 226 0128 50       		.byte	0x50
+ 227 0129 01       		.uleb128 0x1
+ 228 012a 31       		.byte	0x31
+ 229 012b 00       		.byte	0
+ 230 012c 08       		.uleb128 0x8
+ 231 012d 20000000 		.4byte	.LVL6
+ 232 0131 6C010000 		.4byte	0x16c
+ 233 0135 08       		.uleb128 0x8
+ 234 0136 28000000 		.4byte	.LVL7
+ 235 013a 8D010000 		.4byte	0x18d
+ 236 013e 0B       		.uleb128 0xb
+ 237 013f 30000000 		.4byte	.LVL8
+ 238 0143 98010000 		.4byte	0x198
+ 239 0147 0A       		.uleb128 0xa
+ 240 0148 01       		.uleb128 0x1
+ 241 0149 50       		.byte	0x50
+ 242 014a 03       		.uleb128 0x3
+ 243 014b 0A       		.byte	0xa
+ 244 014c F401     		.2byte	0x1f4
+ARM GAS  C:\Users\bourg\AppData\Local\Temp\ccErYR5t.s 			page 6
+
+
+ 245 014e 00       		.byte	0
+ 246 014f 00       		.byte	0
+ 247 0150 0C       		.uleb128 0xc
+ 248 0151 1A010000 		.4byte	.LASF30
+ 249 0155 08       		.byte	0x8
+ 250 0156 1207     		.2byte	0x712
+ 251 0158 5C010000 		.4byte	0x15c
+ 252 015c 0D       		.uleb128 0xd
+ 253 015d 8C000000 		.4byte	0x8c
+ 254 0161 0E       		.uleb128 0xe
+ 255 0162 7A010000 		.4byte	.LASF19
+ 256 0166 7A010000 		.4byte	.LASF19
+ 257 016a 05       		.byte	0x5
+ 258 016b 0E       		.byte	0xe
+ 259 016c 0E       		.uleb128 0xe
+ 260 016d 9F010000 		.4byte	.LASF20
+ 261 0171 9F010000 		.4byte	.LASF20
+ 262 0175 05       		.byte	0x5
+ 263 0176 0F       		.byte	0xf
+ 264 0177 0E       		.uleb128 0xe
+ 265 0178 AA010000 		.4byte	.LASF21
+ 266 017c AA010000 		.4byte	.LASF21
+ 267 0180 06       		.byte	0x6
+ 268 0181 36       		.byte	0x36
+ 269 0182 0E       		.uleb128 0xe
+ 270 0183 00000000 		.4byte	.LASF22
+ 271 0187 00000000 		.4byte	.LASF22
+ 272 018b 06       		.byte	0x6
+ 273 018c 3A       		.byte	0x3a
+ 274 018d 0E       		.uleb128 0xe
+ 275 018e 47010000 		.4byte	.LASF23
+ 276 0192 47010000 		.4byte	.LASF23
+ 277 0196 06       		.byte	0x6
+ 278 0197 61       		.byte	0x61
+ 279 0198 0E       		.uleb128 0xe
+ 280 0199 1A020000 		.4byte	.LASF24
+ 281 019d 1A020000 		.4byte	.LASF24
+ 282 01a1 07       		.byte	0x7
+ 283 01a2 76       		.byte	0x76
+ 284 01a3 00       		.byte	0
+ 285              		.section	.debug_abbrev,"",%progbits
+ 286              	.Ldebug_abbrev0:
+ 287 0000 01       		.uleb128 0x1
+ 288 0001 11       		.uleb128 0x11
+ 289 0002 01       		.byte	0x1
+ 290 0003 25       		.uleb128 0x25
+ 291 0004 0E       		.uleb128 0xe
+ 292 0005 13       		.uleb128 0x13
+ 293 0006 0B       		.uleb128 0xb
+ 294 0007 03       		.uleb128 0x3
+ 295 0008 0E       		.uleb128 0xe
+ 296 0009 1B       		.uleb128 0x1b
+ 297 000a 0E       		.uleb128 0xe
+ 298 000b 55       		.uleb128 0x55
+ 299 000c 17       		.uleb128 0x17
+ 300 000d 11       		.uleb128 0x11
+ 301 000e 01       		.uleb128 0x1
+ARM GAS  C:\Users\bourg\AppData\Local\Temp\ccErYR5t.s 			page 7
+
+
+ 302 000f 10       		.uleb128 0x10
+ 303 0010 17       		.uleb128 0x17
+ 304 0011 00       		.byte	0
+ 305 0012 00       		.byte	0
+ 306 0013 02       		.uleb128 0x2
+ 307 0014 24       		.uleb128 0x24
+ 308 0015 00       		.byte	0
+ 309 0016 0B       		.uleb128 0xb
+ 310 0017 0B       		.uleb128 0xb
+ 311 0018 3E       		.uleb128 0x3e
+ 312 0019 0B       		.uleb128 0xb
+ 313 001a 03       		.uleb128 0x3
+ 314 001b 0E       		.uleb128 0xe
+ 315 001c 00       		.byte	0
+ 316 001d 00       		.byte	0
+ 317 001e 03       		.uleb128 0x3
+ 318 001f 16       		.uleb128 0x16
+ 319 0020 00       		.byte	0
+ 320 0021 03       		.uleb128 0x3
+ 321 0022 0E       		.uleb128 0xe
+ 322 0023 3A       		.uleb128 0x3a
+ 323 0024 0B       		.uleb128 0xb
+ 324 0025 3B       		.uleb128 0x3b
+ 325 0026 0B       		.uleb128 0xb
+ 326 0027 49       		.uleb128 0x49
+ 327 0028 13       		.uleb128 0x13
+ 328 0029 00       		.byte	0
+ 329 002a 00       		.byte	0
+ 330 002b 04       		.uleb128 0x4
+ 331 002c 24       		.uleb128 0x24
+ 332 002d 00       		.byte	0
+ 333 002e 0B       		.uleb128 0xb
+ 334 002f 0B       		.uleb128 0xb
+ 335 0030 3E       		.uleb128 0x3e
+ 336 0031 0B       		.uleb128 0xb
+ 337 0032 03       		.uleb128 0x3
+ 338 0033 08       		.uleb128 0x8
+ 339 0034 00       		.byte	0
+ 340 0035 00       		.byte	0
+ 341 0036 05       		.uleb128 0x5
+ 342 0037 16       		.uleb128 0x16
+ 343 0038 00       		.byte	0
+ 344 0039 03       		.uleb128 0x3
+ 345 003a 0E       		.uleb128 0xe
+ 346 003b 3A       		.uleb128 0x3a
+ 347 003c 0B       		.uleb128 0xb
+ 348 003d 3B       		.uleb128 0x3b
+ 349 003e 05       		.uleb128 0x5
+ 350 003f 49       		.uleb128 0x49
+ 351 0040 13       		.uleb128 0x13
+ 352 0041 00       		.byte	0
+ 353 0042 00       		.byte	0
+ 354 0043 06       		.uleb128 0x6
+ 355 0044 2E       		.uleb128 0x2e
+ 356 0045 01       		.byte	0x1
+ 357 0046 3F       		.uleb128 0x3f
+ 358 0047 19       		.uleb128 0x19
+ARM GAS  C:\Users\bourg\AppData\Local\Temp\ccErYR5t.s 			page 8
+
+
+ 359 0048 03       		.uleb128 0x3
+ 360 0049 0E       		.uleb128 0xe
+ 361 004a 3A       		.uleb128 0x3a
+ 362 004b 0B       		.uleb128 0xb
+ 363 004c 3B       		.uleb128 0x3b
+ 364 004d 0B       		.uleb128 0xb
+ 365 004e 27       		.uleb128 0x27
+ 366 004f 19       		.uleb128 0x19
+ 367 0050 49       		.uleb128 0x49
+ 368 0051 13       		.uleb128 0x13
+ 369 0052 8701     		.uleb128 0x87
+ 370 0054 19       		.uleb128 0x19
+ 371 0055 11       		.uleb128 0x11
+ 372 0056 01       		.uleb128 0x1
+ 373 0057 12       		.uleb128 0x12
+ 374 0058 06       		.uleb128 0x6
+ 375 0059 40       		.uleb128 0x40
+ 376 005a 18       		.uleb128 0x18
+ 377 005b 9742     		.uleb128 0x2117
+ 378 005d 19       		.uleb128 0x19
+ 379 005e 01       		.uleb128 0x1
+ 380 005f 13       		.uleb128 0x13
+ 381 0060 00       		.byte	0
+ 382 0061 00       		.byte	0
+ 383 0062 07       		.uleb128 0x7
+ 384 0063 34       		.uleb128 0x34
+ 385 0064 00       		.byte	0
+ 386 0065 03       		.uleb128 0x3
+ 387 0066 0E       		.uleb128 0xe
+ 388 0067 3A       		.uleb128 0x3a
+ 389 0068 0B       		.uleb128 0xb
+ 390 0069 3B       		.uleb128 0x3b
+ 391 006a 0B       		.uleb128 0xb
+ 392 006b 49       		.uleb128 0x49
+ 393 006c 13       		.uleb128 0x13
+ 394 006d 1C       		.uleb128 0x1c
+ 395 006e 0B       		.uleb128 0xb
+ 396 006f 00       		.byte	0
+ 397 0070 00       		.byte	0
+ 398 0071 08       		.uleb128 0x8
+ 399 0072 898201   		.uleb128 0x4109
+ 400 0075 00       		.byte	0
+ 401 0076 11       		.uleb128 0x11
+ 402 0077 01       		.uleb128 0x1
+ 403 0078 31       		.uleb128 0x31
+ 404 0079 13       		.uleb128 0x13
+ 405 007a 00       		.byte	0
+ 406 007b 00       		.byte	0
+ 407 007c 09       		.uleb128 0x9
+ 408 007d 898201   		.uleb128 0x4109
+ 409 0080 01       		.byte	0x1
+ 410 0081 11       		.uleb128 0x11
+ 411 0082 01       		.uleb128 0x1
+ 412 0083 31       		.uleb128 0x31
+ 413 0084 13       		.uleb128 0x13
+ 414 0085 01       		.uleb128 0x1
+ 415 0086 13       		.uleb128 0x13
+ARM GAS  C:\Users\bourg\AppData\Local\Temp\ccErYR5t.s 			page 9
+
+
+ 416 0087 00       		.byte	0
+ 417 0088 00       		.byte	0
+ 418 0089 0A       		.uleb128 0xa
+ 419 008a 8A8201   		.uleb128 0x410a
+ 420 008d 00       		.byte	0
+ 421 008e 02       		.uleb128 0x2
+ 422 008f 18       		.uleb128 0x18
+ 423 0090 9142     		.uleb128 0x2111
+ 424 0092 18       		.uleb128 0x18
+ 425 0093 00       		.byte	0
+ 426 0094 00       		.byte	0
+ 427 0095 0B       		.uleb128 0xb
+ 428 0096 898201   		.uleb128 0x4109
+ 429 0099 01       		.byte	0x1
+ 430 009a 11       		.uleb128 0x11
+ 431 009b 01       		.uleb128 0x1
+ 432 009c 31       		.uleb128 0x31
+ 433 009d 13       		.uleb128 0x13
+ 434 009e 00       		.byte	0
+ 435 009f 00       		.byte	0
+ 436 00a0 0C       		.uleb128 0xc
+ 437 00a1 34       		.uleb128 0x34
+ 438 00a2 00       		.byte	0
+ 439 00a3 03       		.uleb128 0x3
+ 440 00a4 0E       		.uleb128 0xe
+ 441 00a5 3A       		.uleb128 0x3a
+ 442 00a6 0B       		.uleb128 0xb
+ 443 00a7 3B       		.uleb128 0x3b
+ 444 00a8 05       		.uleb128 0x5
+ 445 00a9 49       		.uleb128 0x49
+ 446 00aa 13       		.uleb128 0x13
+ 447 00ab 3F       		.uleb128 0x3f
+ 448 00ac 19       		.uleb128 0x19
+ 449 00ad 3C       		.uleb128 0x3c
+ 450 00ae 19       		.uleb128 0x19
+ 451 00af 00       		.byte	0
+ 452 00b0 00       		.byte	0
+ 453 00b1 0D       		.uleb128 0xd
+ 454 00b2 35       		.uleb128 0x35
+ 455 00b3 00       		.byte	0
+ 456 00b4 49       		.uleb128 0x49
+ 457 00b5 13       		.uleb128 0x13
+ 458 00b6 00       		.byte	0
+ 459 00b7 00       		.byte	0
+ 460 00b8 0E       		.uleb128 0xe
+ 461 00b9 2E       		.uleb128 0x2e
+ 462 00ba 00       		.byte	0
+ 463 00bb 3F       		.uleb128 0x3f
+ 464 00bc 19       		.uleb128 0x19
+ 465 00bd 3C       		.uleb128 0x3c
+ 466 00be 19       		.uleb128 0x19
+ 467 00bf 6E       		.uleb128 0x6e
+ 468 00c0 0E       		.uleb128 0xe
+ 469 00c1 03       		.uleb128 0x3
+ 470 00c2 0E       		.uleb128 0xe
+ 471 00c3 3A       		.uleb128 0x3a
+ 472 00c4 0B       		.uleb128 0xb
+ARM GAS  C:\Users\bourg\AppData\Local\Temp\ccErYR5t.s 			page 10
+
+
+ 473 00c5 3B       		.uleb128 0x3b
+ 474 00c6 0B       		.uleb128 0xb
+ 475 00c7 00       		.byte	0
+ 476 00c8 00       		.byte	0
+ 477 00c9 00       		.byte	0
+ 478              		.section	.debug_aranges,"",%progbits
+ 479 0000 1C000000 		.4byte	0x1c
+ 480 0004 0200     		.2byte	0x2
+ 481 0006 00000000 		.4byte	.Ldebug_info0
+ 482 000a 04       		.byte	0x4
+ 483 000b 00       		.byte	0
+ 484 000c 0000     		.2byte	0
+ 485 000e 0000     		.2byte	0
+ 486 0010 00000000 		.4byte	.LFB63
+ 487 0014 32000000 		.4byte	.LFE63-.LFB63
+ 488 0018 00000000 		.4byte	0
+ 489 001c 00000000 		.4byte	0
+ 490              		.section	.debug_ranges,"",%progbits
+ 491              	.Ldebug_ranges0:
+ 492 0000 00000000 		.4byte	.LFB63
+ 493 0004 32000000 		.4byte	.LFE63
+ 494 0008 00000000 		.4byte	0
+ 495 000c 00000000 		.4byte	0
+ 496              		.section	.debug_line,"",%progbits
+ 497              	.Ldebug_line0:
+ 498 0000 9E010000 		.section	.debug_str,"MS",%progbits,1
+ 498      02007301 
+ 498      00000201 
+ 498      FB0E0D00 
+ 498      01010101 
+ 499              	.LASF22:
+ 500 0000 4C43445F 		.ascii	"LCD_Char_1_WriteControl\000"
+ 500      43686172 
+ 500      5F315F57 
+ 500      72697465 
+ 500      436F6E74 
+ 501              	.LASF4:
+ 502 0018 5F5F7569 		.ascii	"__uint8_t\000"
+ 502      6E74385F 
+ 502      7400
+ 503              	.LASF5:
+ 504 0022 5F5F696E 		.ascii	"__int32_t\000"
+ 504      7433325F 
+ 504      7400
+ 505              	.LASF29:
+ 506 002c 7761735F 		.ascii	"was_btn_pressed\000"
+ 506      62746E5F 
+ 506      70726573 
+ 506      73656400 
+ 507              	.LASF14:
+ 508 003c 666C6F61 		.ascii	"float\000"
+ 508      7400
+ 509              	.LASF9:
+ 510 0042 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 510      206C6F6E 
+ 510      6720756E 
+ 510      7369676E 
+ARM GAS  C:\Users\bourg\AppData\Local\Temp\ccErYR5t.s 			page 11
+
+
+ 510      65642069 
+ 511              	.LASF1:
+ 512 0059 756E7369 		.ascii	"unsigned char\000"
+ 512      676E6564 
+ 512      20636861 
+ 512      7200
+ 513              	.LASF25:
+ 514 0067 474E5520 		.ascii	"GNU C11 5.4.1 20160609 (release) [ARM/embedded-5-br"
+ 514      43313120 
+ 514      352E342E 
+ 514      31203230 
+ 514      31363036 
+ 515 009a 616E6368 		.ascii	"anch revision 237715] -mcpu=cortex-m3 -mthumb -g -O"
+ 515      20726576 
+ 515      6973696F 
+ 515      6E203233 
+ 515      37373135 
+ 516 00cd 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 516      66756E63 
+ 516      74696F6E 
+ 516      2D736563 
+ 516      74696F6E 
+ 517              	.LASF7:
+ 518 00f5 6C6F6E67 		.ascii	"long unsigned int\000"
+ 518      20756E73 
+ 518      69676E65 
+ 518      6420696E 
+ 518      7400
+ 519              	.LASF3:
+ 520 0107 73686F72 		.ascii	"short unsigned int\000"
+ 520      7420756E 
+ 520      7369676E 
+ 520      65642069 
+ 520      6E7400
+ 521              	.LASF30:
+ 522 011a 49544D5F 		.ascii	"ITM_RxBuffer\000"
+ 522      52784275 
+ 522      66666572 
+ 522      00
+ 523              	.LASF15:
+ 524 0127 646F7562 		.ascii	"double\000"
+ 524      6C6500
+ 525              	.LASF28:
+ 526 012e 6D61696E 		.ascii	"main\000"
+ 526      00
+ 527              	.LASF13:
+ 528 0133 75696E74 		.ascii	"uint16\000"
+ 528      313600
+ 529              	.LASF10:
+ 530 013a 756E7369 		.ascii	"unsigned int\000"
+ 530      676E6564 
+ 530      20696E74 
+ 530      00
+ 531              	.LASF23:
+ 532 0147 4C43445F 		.ascii	"LCD_Char_1_PrintU32Number\000"
+ 532      43686172 
+ 532      5F315F50 
+ARM GAS  C:\Users\bourg\AppData\Local\Temp\ccErYR5t.s 			page 12
+
+
+ 532      72696E74 
+ 532      5533324E 
+ 533              	.LASF11:
+ 534 0161 75696E74 		.ascii	"uint8_t\000"
+ 534      385F7400 
+ 535              	.LASF12:
+ 536 0169 696E7433 		.ascii	"int32_t\000"
+ 536      325F7400 
+ 537              	.LASF17:
+ 538 0171 73697A65 		.ascii	"sizetype\000"
+ 538      74797065 
+ 538      00
+ 539              	.LASF19:
+ 540 017a 6B657970 		.ascii	"keypadInit\000"
+ 540      6164496E 
+ 540      697400
+ 541              	.LASF8:
+ 542 0185 6C6F6E67 		.ascii	"long long int\000"
+ 542      206C6F6E 
+ 542      6720696E 
+ 542      7400
+ 543              	.LASF26:
+ 544 0193 6D61696E 		.ascii	"main.c\000"
+ 544      2E6300
+ 545              	.LASF16:
+ 546 019a 63686172 		.ascii	"char\000"
+ 546      00
+ 547              	.LASF20:
+ 548 019f 6B657970 		.ascii	"keypadScan\000"
+ 548      61645363 
+ 548      616E00
+ 549              	.LASF21:
+ 550 01aa 4C43445F 		.ascii	"LCD_Char_1_Init\000"
+ 550      43686172 
+ 550      5F315F49 
+ 550      6E697400 
+ 551              	.LASF2:
+ 552 01ba 73686F72 		.ascii	"short int\000"
+ 552      7420696E 
+ 552      7400
+ 553              	.LASF6:
+ 554 01c4 6C6F6E67 		.ascii	"long int\000"
+ 554      20696E74 
+ 554      00
+ 555              	.LASF18:
+ 556 01cd 6C6F6E67 		.ascii	"long double\000"
+ 556      20646F75 
+ 556      626C6500 
+ 557              	.LASF0:
+ 558 01d9 7369676E 		.ascii	"signed char\000"
+ 558      65642063 
+ 558      68617200 
+ 559              	.LASF27:
+ 560 01e5 443A5C62 		.ascii	"D:\\bourg\\Documents\\PSoC Creator\\labo1\\Design01"
+ 560      6F757267 
+ 560      5C446F63 
+ 560      756D656E 
+ARM GAS  C:\Users\bourg\AppData\Local\Temp\ccErYR5t.s 			page 13
+
+
+ 560      74735C50 
+ 561 0213 2E637964 		.ascii	".cydsn\000"
+ 561      736E00
+ 562              	.LASF24:
+ 563 021a 43794465 		.ascii	"CyDelay\000"
+ 563      6C617900 
+ 564              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 5.4.1 20160609 (release) [ARM/embedded-5-bran

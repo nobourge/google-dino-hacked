@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<blockRegMap version="1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://cypress.com/xsd/cyblockregmap cyblockregmap.xsd" xmlns="http://cypress.com/xsd/cyblockregmap">
+  <block name="ROW2" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
+  <block name="ROW1" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
+  <block name="COL3" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
+  <block name="Em_EEPROM_Dynamic" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
+  <block name="cy_boot" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
+  <block name="ROW3" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
+  <block name="LedPin" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
+  <block name="LCD_Char_1" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false">
+    <block name="LCDPort" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
+  </block>
+  <block name="BtnPin" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
+  <block name="COL2" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
+  <block name="ROW0" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
+  <block name="COL1" BASE="0x0" SIZE="0x0" desc="" visible="true" hidden="false" />
+</blockRegMap>

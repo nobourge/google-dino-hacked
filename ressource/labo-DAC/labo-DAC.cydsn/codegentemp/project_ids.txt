@@ -1,0 +1,7 @@
+C:\Program Files (x86)\Cypress\PSoC Creator\4.4\PSoC Creator\psoc\content\default\CyAnnotationLibrary\CyAnnotationLibrary.cylib\CyAnnotationLibrary.cyprj|61037511-b0cb-4092-961d-19da3265de69
+D:\bourg\Documents\PSoC Creator\4.4\Downloads ( 4.4).cylib\Downloads ( 4.4).cyprj|59c91061-b1a4-4166-8c7b-e08d4c7fb176
+C:\Program Files (x86)\Cypress\PSoC Creator\4.4\PSoC Creator\psoc\content\cycomponentlibraryupdates\CyComponentLibraryUpdates.cylib\CyComponentLibraryUpdates.cyprj|7e549cc9-cdd2-431f-9fe7-299b97d862e6
+C:\Program Files (x86)\Cypress\PSoC Creator\4.4\PSoC Creator\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\CyComponentLibrary.cyprj|45ed5d50-0d5c-45fc-9d5d-9ec7c8d76cbd
+C:\Program Files (x86)\Cypress\PSoC Creator\4.4\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\CyPrimitives.cyprj|8df49a67-1dd1-4e5e-88ca-9078bca0cc19
+D:\bourg\Documents\PSoC Creator\labo-DAC\labo-DAC.cydsn\labo-DAC.cyprj|0e63a396-70a5-4b67-a36b-0e0bffe32995
+C:\Program Files (x86)\Cypress\PSoC Creator\4.4\PSoC Creator\dev\psoc3\AnalogDevice\PSoC35AnalogDevice.cylib\PSoC35AnalogDevice.cyprj|db18f12e-16c9-4bea-ac31-968429162a41

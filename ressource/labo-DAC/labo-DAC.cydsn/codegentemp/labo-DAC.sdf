@@ -1,0 +1,20 @@
+(DELAYFILE
+ (SDFVERSION "IEEE 1497 4.0")
+ (DATE "2022-04-21T09:35:30Z")
+ (DESIGN "labo-DAC")
+ (VENDOR "Cypress Semiconductor")
+ (PROGRAM "PSoC Creator")
+ (VERSION " 4.4")
+ (DIVIDER .)
+ (TIMESCALE 1 ns)
+ (CELL
+  (CELLTYPE "labo-DAC")
+  (INSTANCE *)
+  (DELAY
+   (ABSOLUTE
+    (INTERCONNECT __ONE__.q \\Timer\:TimerHW\\.enable (0.000:0.000:0.000))
+    (INTERCONNECT ClockBlock.clk_bus_glb_ff \\Timer\:TimerHW\\.clock (0.000:0.000:0.000))
+   )
+  )
+ )
+)
