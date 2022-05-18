@@ -18,9 +18,9 @@ class SignalFiltration;
 
 // dino.h
 BleKeyboard bleKeyboard;
-LiveFastChangeDetector *obsticle_start_detector_light_theme;
-LiveFastChangeDetector *obsticle_end_detector_light_theme;
-LiveFastChangeDetector *obsticle_lagged_start_detector_light_theme;
+LiveFastChangeDetector *cactus_start_detector_light_theme;
+LiveFastChangeDetector *cactus_end_detector_light_theme;
+LiveFastChangeDetector *cactus_lagged_start_detector_light_theme;
 
 ArduinoQueue<Jump> future_jumps(20);
 
@@ -115,9 +115,9 @@ void setup() {
 }
 
 void SetupMovingAverages() {
-  obsticle_start_detector_light_theme = new LiveFastChangeDetector(0.4, 0.1, DINO_MOVING_AVG_THRESHOLD, true, false, analogRead(MAIN_PHOTORESISTOR_PIN));
-  obsticle_lagged_start_detector_light_theme = new LiveFastChangeDetector(0.4, 0.1, DINO_MOVING_AVG_THRESHOLD, true, false, analogRead(MAIN_PHOTORESISTOR_PIN));
-//  obsticle_end_detector_light_theme = new LiveFastChangeDetector(0.4, 0.1, DINO_MOVING_AVG_THRESHOLD, false, true, analogRead(MAIN_PHOTORESISTOR_PIN));
+  cactus_start_detector_light_theme = new LiveFastChangeDetector(0.4, 0.1, DINO_MOVING_AVG_THRESHOLD, true, false, analogRead(MAIN_PHOTORESISTOR_PIN));
+  cactus_lagged_start_detector_light_theme = new LiveFastChangeDetector(0.4, 0.1, DINO_MOVING_AVG_THRESHOLD, true, false, analogRead(MAIN_PHOTORESISTOR_PIN));
+//  cactus_end_detector_light_theme = new LiveFastChangeDetector(0.4, 0.1, DINO_MOVING_AVG_THRESHOLD, false, true, analogRead(MAIN_PHOTORESISTOR_PIN));
 }
 
 void UpdateMovingAveragesTask(void * pvParameters) {
@@ -158,7 +158,7 @@ void DinoCactiTrackerTask(void * pvParameters) {
   bool last_was_key_up = false;
   unsigned int last_detected_cactus_time = 0;
   for (;;){
-    obsticle_lagged_start_detector_light_theme.
+    cactus_lagged_start_detector_light_theme.IsDetectingFastChange()
     cactus_approaching = fast_moving_avg->GetValue() - slow_moving_avg->GetValue() < DINO_MOVING_AVG_THRESHOLD;
     Serial.print(analogRead(MAIN_PHOTORESISTOR_PIN) / 50);
     Serial.print(",");
