@@ -4,7 +4,7 @@
 
 #define LEADING_PHOTORESISTOR_PIN       15
 #define TRAILING_PHOTORESISTOR_PIN      4
-#define BG_COLOR_PHOTORESISTOR          2 //  2 = white
+#define BG_PHOTORESISTOR_PIN            2
 
 #define MOVING_AVG_SPEED                0.3
 #define SLOW_MOVING_AVG_SPEED           0.3
@@ -88,20 +88,49 @@ public:
   }
 };
 
-
+/*
+void DinoCactiTrackerTask(void * pvParameters) {
+  bool last_was_key_up = false;
+  unsigned int last_detected_cactus_time = 0;
+  for (;;){
+    obsticle_lagged_start_detector_light_theme.
+    cactus_lagged_start_detector_light_theme.IsDetectingFastChange()
+    cactus_approaching = fast_moving_avg->GetValue() - slow_moving_avg->GetValue() < DINO_MOVING_AVG_THRESHOLD;
+    Serial.print(analogRead(MAIN_PHOTORESISTOR_PIN) / 50);
+    Serial.print(",");
+    Serial.print(fast_moving_avg->GetValue() / 50);
+    Serial.print(",");
+    Serial.print(slow_moving_avg->GetValue() / 50);
+    Serial.print(",");
+    Serial.println(cactus_approaching);
+    vTaskDelay(10);
+  }
+}
+*/
 void setup() {
   Serial.begin(115200); // Arduino - computer communication
   bleKeyboard.begin();
+  #if DEBUG == 1
+    Serial.println("Sending Ctrl+Maj+L...");
+    bleKeyboard.press(KEY_LEFT_CTRL);
+    bleKeyboard.press(KEY_LEFT_MAJ);
+    bleKeyboard.press(KEY_L);
+    delay(100);
+    bleKeyboard.releaseAll();
+
+    Serial.print(v1); Serial.print(",");
+    Serial.println(v2);
+  #endif
 }
 
 void loop() {
   static ExpMovingAverage leading_sensor_brightness_avg         =       INIT_M_AVG_FOR_PIN(LEADING_PHOTORESISTOR_PIN);
   static ExpMovingAverage trailing_sensor_brightness_avg        =       INIT_M_AVG_FOR_PIN(TRAILING_PHOTORESISTOR_PIN);
-  static ExpMovingAverage bg_sensor_brightness_avg              =       INIT_M_AVG_FOR_PIN(BG_COLOR_PHOTORESISTOR);
+  static ExpMovingAverage bg_sensor_brightness_avg              =       INIT_M_AVG_FOR_PIN(BG_PHOTORESISTOR_PIN);
 
   static ExpMovingAverage slow_leading_sensor_brightness_avg    =       INIT_SLOW_M_AVG_FOR_PIN(LEADING_PHOTORESISTOR_PIN);
   static ExpMovingAverage slow_trailing_sensor_brightness_avg   =       INIT_SLOW_M_AVG_FOR_PIN(TRAILING_PHOTORESISTOR_PIN);
-  static ExpMovingAverage slow_bg_sensor_brightness_avg         =       INIT_SLOW_M_AVG_FOR_PIN(BG_COLOR_PHOTORESISTOR);
+  static ExpMovingAverage slow_bg_sensor_brightness_avg         =       INIT_SLOW_M_AVG_FOR_PIN(BG_PHOTORESISTOR_PIN);
 
   static bool prev_leading_sensor_cactus_detected                            =       false;
   static bool prev_trailing_sensor_cactus_detected                           =       false;
@@ -147,6 +176,14 @@ void loop() {
       
     }
   }
+
+  Serial.print(analogRead(LEADING_PHOTORESISTOR_PIN) / 50);
+    // Serial.print(",");
+    // Serial.print(fast_moving_avg->GetValue() / 50);
+    // Serial.print(",");
+    // Serial.print(slow_moving_avg->GetValue() / 50);
+    // Serial.print(",");
+    // Serial.println(cactus_approaching);
 
   
 }
