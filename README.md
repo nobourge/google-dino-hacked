@@ -15,3 +15,5 @@ https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide-window
 
 then install bluetooth keyboard library :
 https://github.com/T-vK/ESP32-BLE-Keyboard/releases#:~:text=ESP32%2DBLE%2DKeyboard.zip
+
+When running on arduino, go to "Tools/serial tracer" to watch the signal coming from the photo-resistors 
