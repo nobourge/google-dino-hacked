@@ -1,44 +1,22 @@
 #include <BleKeyboard.h>
 
-#define MAIN_PHOTORESISTOR_PIN 15
+#define LEADING_PHOTORESISTOR_PIN       15
+#define TRAILING_PHOTORESISTOR_PIN      4
+#define BG_COLOR_PHOTORESISTOR          2
 
-#define DINO_IN_THE_AIR_TIME_MS 500
-#define DINO_MOVING_AVG_THRESHOLD 30
+#define MOVING_AVG_SPEED                0.3
+#define SLOW_MOVING_AVG_SPEED           0.3
+#define INIT_M_AVG_FOR_PIN(pin)         ExpMovingAverage(analogRead(pin), MOVING_AVG_SPEED)
+#define INIT_SLOW_M_AVG_FOR_PIN(pin)    ExpMovingAverage(analogRead(pin), SLOW_MOVING_AVG_SPEED)
 
-struct Jump {
-  unsigned long takeoff_time;
-  unsigned long landing_time;
-};
-
-class LiveFastChangeDetector;
+#define CACTUS_DEBOUNCING_GAP_MS        100
+#define BRIGHTNESS_DELTA_THRESHOLD      25
 
 
-// signal_filtration.h
-class SignalFiltration;
-
-// dino.h
+bool isInJumpState = false;
 BleKeyboard bleKeyboard;
-LiveFastChangeDetector *cactus_start_detector_light_theme;
-LiveFastChangeDetector *cactus_end_detector_light_theme;
-LiveFastChangeDetector *cactus_lagged_start_detector_light_theme;
 
-ArduinoQueue<Jump> future_jumps(20);
-
-void UpdateMovingAveragesTask(void * pvParameters);
-void DinoCactiTrackerTask(void * pvParameters);
-void SetupMovingAverages();
-
-//dino.signal
-
-class SignalFiltration {
-public:
-  SignalFiltration() = default;
-  virtual double GetValue() = 0;
-  virtual void AddValue(double value) = 0;
-};
-
-
-class ExpMovingAverage: public SignalFiltration {
+class ExpMovingAverage {
 private:
   double speed_;
   double average_;
@@ -53,9 +31,9 @@ protected:
   }
 
 public:
-  ExpMovingAverage(double average, double speed) : SignalFiltration(), average_{average}, speed_{speed} {}
+  ExpMovingAverage(double average, double speed) : average_{average}, speed_{speed} {}
 
-  void AddValue(double value) override {
+  void AddValue(double value) {
     average_ = value * speed_ + average_ * (1 - speed_);
   }
 
@@ -63,113 +41,108 @@ public:
     return speed_;
   }
 
-  double GetValue() override {
+  double GetValue() {
     return average_;
   }
 };
- 
-class LiveFastChangeDetector {
-private:
-  ExpMovingAverage fast_moving_avg_;
-  ExpMovingAverage slow_moving_avg_;
 
-  double change_detection_threshold_;
-  bool detect_rising_change_;
-  bool detect_falling_change_;
+
+class Timer {
+  // should've used the ESP32 timer api, but this does the job :-)
+private:
+  unsigned long times_out_at_ = 0;
+  unsigned long delay_ms_;
+  bool stopped_ = false;
+  
+
+  static unsigned long GetTimeIn(unsigned long ms_interval) {
+    return millis() + ms_interval;
+  }
   
 public:
-  LiveFastChangeDetector(double fast_moving_avg_speed, double slow_moving_avg_speed, double change_detection_threshold, bool detect_rising_change, bool detect_falling_change, double initial_value = 0) 
-    : fast_moving_avg_(ExpMovingAverage(initial_value, fast_moving_avg_speed)), 
-      slow_moving_avg_(ExpMovingAverage(initial_value, slow_moving_avg_speed)), 
-      change_detection_threshold_{change_detection_threshold}, 
-      detect_rising_change_{detect_rising_change},
-      detect_falling_change_{detect_falling_change}
-  {}
-
-  void AddValue(double new_value) {
-    fast_moving_avg_.AddValue(new_value);
-    slow_moving_avg_.AddValue(new_value);
+  Timer(unsigned long delay_ms) : delay_ms_{delay_ms} {
+    Start();
   }
 
-  bool IsDetectingFastChange() {
-    double change = fast_moving_avg->GetValue() - slow_moving_avg->GetValue();
-    double absolute_change = -1
-    if ((detect_rising_change_ && change > 0) || (detect_falling_change_ && change < 0)) {
-      absolute_change = abs(change);
-    }
-
-    
-    return change > 0 && change > change_detection_threshold_;
+  bool IsOver() {
+    return times_out_at_ <= millis();
   }
-}
+
+  void SetTimeout(unsigned long ms) {
+    delay_ms_ = ms;
+    times_out_at_ = GetTimeIn(ms);
+  }
+
+  void Stop() {
+    delay_ms_ = times_out_at_ - millis();
+    stopped_ = true;
+  }
+
+  void Start() {
+    times_out_at_ = GetTimeIn(delay_ms_);
+    stopped_ = false;
+  }
+};
+
 
 void setup() {
   Serial.begin(115200);
   bleKeyboard.begin();
-
-  SetupMovingAverages();
-  
-  xTaskCreate(DinoCactiTrackerTask, "Dino cacti tracker task", 3000, NULL, 1, NULL);
-  xTaskCreate(UpdateMovingAveragesTask, "Moving averages", 3000, NULL, 1, NULL);
-  xTaskCreate(DinoControllerTask, "Dino controller", 3000, NULL, 1, NULL);
-}
-
-void SetupMovingAverages() {
-  cactus_start_detector_light_theme = new LiveFastChangeDetector(0.4, 0.1, DINO_MOVING_AVG_THRESHOLD, true, false, analogRead(MAIN_PHOTORESISTOR_PIN));
-  cactus_lagged_start_detector_light_theme = new LiveFastChangeDetector(0.4, 0.1, DINO_MOVING_AVG_THRESHOLD, true, false, analogRead(MAIN_PHOTORESISTOR_PIN));
-//  cactus_end_detector_light_theme = new LiveFastChangeDetector(0.4, 0.1, DINO_MOVING_AVG_THRESHOLD, false, true, analogRead(MAIN_PHOTORESISTOR_PIN));
-}
-
-void UpdateMovingAveragesTask(void * pvParameters) {
-  for (;;){
-    int analog_read_val = analogRead(MAIN_PHOTORESISTOR_PIN);
-    slow_moving_avg->AddValue(analog_read_val);
-    fast_moving_avg->AddValue(analog_read_val);
-    vTaskDelay(10);
-  }
-}
-
-void DinoControllerTask(void * pvParameters) {
-  bool last_was_key_up = false;
-  bleKeyboard.press(KEY_DOWN_ARROW);
-  for (;;) {
-  
-    while (!bleKeyboard.isConnected()) {
-      vTaskDelay(5000 / portTICK_PERIOD_MS);
-      Serial.println("Waiting for bluetooth connection...");
-    }
-
-
-    
-    if (!future_jumps.isEmpty() && !last_was_key_up) {
-      Serial.print(millis()); Serial.print(": ");
-      Serial.println("Jumping");
-      bleKeyboard.releaseAll();
-      bleKeyboard.write(KEY_UP_ARROW);
-      vTaskDelay(DINO_IN_THE_AIR_TIME_MS / portTICK_PERIOD_MS);
-      bleKeyboard.press(KEY_DOWN_ARROW);
-    }
-
-    vTaskDelay(10);
-  }
-}
-
-void DinoCactiTrackerTask(void * pvParameters) {
-  bool last_was_key_up = false;
-  unsigned int last_detected_cactus_time = 0;
-  for (;;){
-    cactus_lagged_start_detector_light_theme.IsDetectingFastChange()
-    cactus_approaching = fast_moving_avg->GetValue() - slow_moving_avg->GetValue() < DINO_MOVING_AVG_THRESHOLD;
-    Serial.print(analogRead(MAIN_PHOTORESISTOR_PIN) / 50);
-    Serial.print(",");
-    Serial.print(fast_moving_avg->GetValue() / 50);
-    Serial.print(",");
-    Serial.print(slow_moving_avg->GetValue() / 50);
-    Serial.print(",");
-    Serial.println(cactus_approaching);
-    vTaskDelay(10);
-  }
 }
 
 void loop() {
+  static ExpMovingAverage leading_sensor_brightness_avg         =       INIT_M_AVG_FOR_PIN(LEADING_PHOTORESISTOR_PIN);
+  static ExpMovingAverage trailing_sensor_brightness_avg        =       INIT_M_AVG_FOR_PIN(TRAILING_PHOTORESISTOR_PIN);
+  static ExpMovingAverage bg_sensor_brightness_avg              =       INIT_M_AVG_FOR_PIN(BG_COLOR_PHOTORESISTOR);
+
+  static ExpMovingAverage slow_leading_sensor_brightness_avg    =       INIT_SLOW_M_AVG_FOR_PIN(LEADING_PHOTORESISTOR_PIN);
+  static ExpMovingAverage slow_trailing_sensor_brightness_avg   =       INIT_SLOW_M_AVG_FOR_PIN(TRAILING_PHOTORESISTOR_PIN);
+  static ExpMovingAverage slow_bg_sensor_brightness_avg         =       INIT_SLOW_M_AVG_FOR_PIN(BG_COLOR_PHOTORESISTOR);
+
+  static bool prev_leading_sensor_cactus_detected                            =       false;
+  static bool prev_trailing_sensor_cactus_detected                           =       false;
+
+  static unsigned long leading_sensor_first_detected_cactus_at_ms     =     0;
+  static unsigned long leading_sensor_stopped_detecting_cactus_at_ms  =     0;
+
+  static unsigned long trailing_sensor_first_detected_cactus_at_ms    =     0;
+  static unsigned long trailing_sensor_stopped_detecting_cactus_at_ms =     0;
+  
+
+  if (millis() % 3) {
+
+    auto leading_read    =  analogRead(LEADING_PHOTORESISTOR_PIN);
+    auto trailing_read  =  analogRead(TRAILING_PHOTORESISTOR_PIN);
+    auto bg_read      =  analogRead(BG_PHOTORESISTOR_PIN);
+    
+    leading_sensor_brightness_avg.AddValue(leading_read);
+    trailing_sensor_brightness_avg.AddValue(trailing_read);
+    bg_sensor_brightness_avg.AddValue(bg_read);
+
+    slow_leading_sensor_brightness_avg.AddValue(leading_read);
+    slow_trailing_sensor_brightness_avg.AddValue(trailing_read);
+    slow_bg_sensor_brightness_avg.AddValue(bg_read);
+  }
+
+  bool leading_sensor_detects_cactus = (
+    millis() - leading_sensor_stopped_detecting_cactus_at_ms > CACTUS_DEBOUNCING_GAP_MS
+    &&
+    abs(leading_sensor_brightness_avg.GetValue() - slow_leading_sensor_brightness_avg.GetValue()) > BRIGHTNESS_DELTA_THRESHOLD
+  );
+
+  bool trailing_sensor_detects_cactus = (
+    millis() - trailing_sensor_stopped_detecting_cactus_at_ms > CACTUS_DEBOUNCING_GAP_MS
+    &&
+    abs(trailing_sensor_brightness_avg.GetValue() - slow_trailing_sensor_brightness_avg.GetValue()) > BRIGHTNESS_DELTA_THRESHOLD
+  );
+
+  if (leading_sensor_detects_cactus != prev_leading_sensor_cactus_detected) {
+    if (leading_sensor_detects_cactus) {
+      leading_sensor_first_detected_cactus_at_ms = millis();
+    } else {
+      
+    }
+  }
+
+  
 }
