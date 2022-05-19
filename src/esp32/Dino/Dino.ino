@@ -1,8 +1,10 @@
 #include <BleKeyboard.h>
 
+#define DEBUG 0
+
 #define LEADING_PHOTORESISTOR_PIN       15
 #define TRAILING_PHOTORESISTOR_PIN      4
-#define BG_COLOR_PHOTORESISTOR          2
+#define BG_COLOR_PHOTORESISTOR          2 //  2 = white
 
 #define MOVING_AVG_SPEED                0.3
 #define SLOW_MOVING_AVG_SPEED           0.3
@@ -16,7 +18,7 @@
 bool isInJumpState = false;
 BleKeyboard bleKeyboard;
 
-class ExpMovingAverage {
+class ExpMovingAverage {  // exponential more reactive
 private:
   double speed_;
   double average_;
@@ -33,11 +35,11 @@ protected:
 public:
   ExpMovingAverage(double average, double speed) : average_{average}, speed_{speed} {}
 
-  void AddValue(double value) {
+  void AddValue(double value) { // to curve
     average_ = value * speed_ + average_ * (1 - speed_);
   }
 
-  double &GetSpeed() {
+  double &GetSpeed() {  
     return speed_;
   }
 
@@ -56,7 +58,7 @@ private:
   
 
   static unsigned long GetTimeIn(unsigned long ms_interval) {
-    return millis() + ms_interval;
+    return millis() + ms_interval;  // millis() = ms time from start
   }
   
 public:
@@ -64,14 +66,16 @@ public:
     Start();
   }
 
-  bool IsOver() {
-    return times_out_at_ <= millis();
-  }
-
   void SetTimeout(unsigned long ms) {
     delay_ms_ = ms;
     times_out_at_ = GetTimeIn(ms);
   }
+  
+  bool IsOver() {
+    return times_out_at_ <= millis();
+  }
+
+  
 
   void Stop() {
     delay_ms_ = times_out_at_ - millis();
@@ -86,7 +90,7 @@ public:
 
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(115200); // Arduino - computer communication
   bleKeyboard.begin();
 }
 
@@ -111,7 +115,7 @@ void loop() {
 
   if (millis() % 3) {
 
-    auto leading_read    =  analogRead(LEADING_PHOTORESISTOR_PIN);
+    auto leading_read    =  analogRead(LEADING_PHOTORESISTOR_PIN);  // Analog Digital converter value
     auto trailing_read  =  analogRead(TRAILING_PHOTORESISTOR_PIN);
     auto bg_read      =  analogRead(BG_PHOTORESISTOR_PIN);
     
