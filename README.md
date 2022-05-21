@@ -1,15 +1,8 @@
 # google-dino-hacked
 
+https://youtu.be/JOFl63-6Mqc
+
 ![Visualization of the repository visualizer diagram](./diagram.svg)
-
-
-
-
-https://user-images.githubusercontent.com/57195536/169046689-d2bdcc1d-1b5d-4ec6-85d9-62dda763d588.mp4
-
-
-PXL_20220512_115605022.LS.mp4
-
 
 ### esp32
 Please follow the instructions here to use correctly the ESP32 socket:
