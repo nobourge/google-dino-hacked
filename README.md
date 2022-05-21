@@ -1,7 +1,7 @@
 # google-dino-hacked
 
-https://youtu.be/JOFl63-6Mqc
-https://youtu.be/I-8QXEF8-pc
+* https://youtu.be/JOFl63-6Mqc
+* https://youtu.be/I-8QXEF8-pc
 
 ![Visualization of the repository visualizer diagram](./diagram.svg)
 
