@@ -31,4 +31,29 @@ void loop() {
 
   last_was_high = db_val;
 
+//  delay(10);
+////  if (db_val == HIGH)
+////  {
+////      digitalWrite(LED_BUILTIN, HIGH);
+////      Serial.write("Switching ON");
+////      bleKeyboard.press(KEY_DOWN_ARROW);
+////      delay(100);
+////      bleKeyboard.release(KEY_DOWN_ARROW);
+////      
+////  } 
+////  else
+////  {
+////  
+////    digitalWrite(LED_BUILTIN, LOW);
+////      Serial.write("Switching OFF");
+////    while (db_val != HIGH)
+////    {
+////      //Serial.write(" OFF");
+////
+////      db_val    =  digitalRead(AUDIO_IN_PIN);  // Analog Digital converter value
+////    }
+////
+////  }
+////      //delay(100);
+
  }

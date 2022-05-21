@@ -12,24 +12,15 @@ matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
+# todo find tinkercad-like esp32 simulation
 # starts program
 #exec(open("dino.ino").read())
 
 # # make sure the 'COM#' is set according the Windows Device Manager
 # import serial
 # ser = serial.Serial('COM4', 9800, timeout=1)
-# time.sleep(2)
-
-# function to pull out a float from the requests response object
-def pull_float(response):
-    jsonr = response.json()
-    strr = jsonr["data"][0]
-    if strr:
-        fltr = round(float(strr), 2)
-        return fltr
-    else:
-        return None
-
+# ser = serial.Serial('COM4', 19200, timeout=1)
+# ser = serial.Serial('COM4', 115200, timeout=1)
 
 # Create figure for plotting
 fig, ax = plt.subplots()
@@ -44,8 +35,7 @@ def animate(i, xs:list, ys:list):
     #     string = line.decode()  # convert the byte string to a unicode string
     #     num = int(string) # convert the unicode string to an int
     #     print(num)
-    # # pull out the float from the json object
-    # float = pull_float(num)
+    #     response = num
 
     ## Add x and y to lists
     xs.append(dt.datetime.now().strftime('%H:%M:%S'))
