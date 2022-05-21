@@ -1,152 +1,366 @@
 #include <BleKeyboard.h>
+#include <ArduinoQueue.h>
 
-#define DEBUG 0
+#define MAIN_PHOTORESISTOR_PIN 15
+#define LAGGED_PHOTORESISTOR_PIN 4
+#define THEME_DETECOR_PIN 2
 
-#define LEADING_PHOTORESISTOR_PIN       15
-#define TRAILING_PHOTORESISTOR_PIN      4
-#define BG_COLOR_PHOTORESISTOR          2 //  2 = white
+#define DINO_IN_THE_AIR_TIME_MS 400
+#define DINO_MOVING_AVG_THRESHOLD 30
 
-#define MOVING_AVG_SPEED                0.3
-#define SLOW_MOVING_AVG_SPEED           0.3
-#define INIT_M_AVG_FOR_PIN(pin)         ExpMovingAverage(analogRead(pin), MOVING_AVG_SPEED)
-#define INIT_SLOW_M_AVG_FOR_PIN(pin)    ExpMovingAverage(analogRead(pin), SLOW_MOVING_AVG_SPEED)
+#define EXTRA_JUMP_TIME_MS 160
 
-#define CACTUS_DEBOUNCING_GAP_MS        100
-#define BRIGHTNESS_DELTA_THRESHOLD      25
+#define PHOTORESISTORS_DISTANCE_TO_DINO_DISTANCE_RATIO 0.5
 
+#define DAY_THEME_THRESHOLD 400
 
-bool isInJumpState = false;
+struct Jump
+{
+  unsigned long takeoff_time;
+  unsigned long landing_time;
+};
+
+class LiveFastChangeDetector;
+
+class SignalFiltration;
+
+class ThemeDetector;
+
+// dino.h
 BleKeyboard bleKeyboard;
+LiveFastChangeDetector *cactus_start_detector_light_theme;
+LiveFastChangeDetector *cactus_start_detector_dark_theme;
 
-class ExpMovingAverage {  // exponential more reactive
+LiveFastChangeDetector *cactus_lagged_start_detector_light_theme;
+LiveFastChangeDetector *cactus_lagged_start_detector_dark_theme;
+
+LiveFastChangeDetector *cactus_end_detector_light_theme;
+LiveFastChangeDetector *cactus_end_detector_dark_theme;
+
+ThemeDetector *theme_detector;
+
+
+ArduinoQueue<Jump> future_jumps(20);
+
+void UpdateMovingAveragesTask(void *pvParameters);
+void DinoCactiTrackerTask(void *pvParameters);
+void SetupMovingAverages();
+
+// dino.signal
+
+class SignalFiltration
+{
+public:
+  SignalFiltration() = default;
+  virtual double GetValue() = 0;
+  virtual void SupplyValue(double value) = 0;
+};
+
+class Debouncer
+{
+private:
+  unsigned int min_gap_ms_;
+  unsigned long last_time_was_true_;
+  bool last_debounced_value_;
+
+public:
+  Debouncer(unsigned int min_gap_ms) : min_gap_ms_{min_gap_ms}, last_time_was_true_{0}, last_debounced_value_{false} {}
+  Debouncer &SupplyValue(bool value)
+  {
+    if (last_debounced_value_ != value)
+    {
+      if (value)
+      {
+        last_debounced_value_ = last_time_was_true_ + min_gap_ms_ < millis() ? value : last_debounced_value_;
+      }
+      else
+      {
+        last_debounced_value_ = value;
+      }
+    }
+    return *this;
+  }
+
+  bool GetValue()
+  {
+    return last_debounced_value_;
+  }
+};
+
+class ExpMovingAverage : public SignalFiltration
+{
 private:
   double speed_;
   double average_;
 
 protected:
-  void SetSpeed(double speed) {
+  void SetSpeed(double speed)
+  {
     speed_ = speed;
   }
 
-  void SetAverage(double new_avg) {
+  void SetAverage(double new_avg)
+  {
     average_ = new_avg;
   }
 
 public:
-  ExpMovingAverage(double average, double speed) : average_{average}, speed_{speed} {}
+  ExpMovingAverage(double average, double speed) : SignalFiltration(), average_{average}, speed_{speed} {}
 
-  void AddValue(double value) { // to curve
+  void SupplyValue(double value) override
+  {
     average_ = value * speed_ + average_ * (1 - speed_);
   }
 
-  double &GetSpeed() {  
+  double &GetSpeed()
+  {
     return speed_;
   }
 
-  double GetValue() {
+  double GetValue() override
+  {
     return average_;
   }
 };
 
-
-class Timer {
-  // should've used the ESP32 timer api, but this does the job :-)
+class LiveFastChangeDetector
+{
 private:
-  unsigned long times_out_at_ = 0;
-  unsigned long delay_ms_;
-  bool stopped_ = false;
-  
+  double change_detection_threshold_;
+  bool detect_rising_change_;
+  bool detect_falling_change_;
 
-  static unsigned long GetTimeIn(unsigned long ms_interval) {
-    return millis() + ms_interval;  // millis() = ms time from start
-  }
-  
+  Debouncer output_debouncer_;
+
 public:
-  Timer(unsigned long delay_ms) : delay_ms_{delay_ms} {
-    Start();
+  ExpMovingAverage fast_moving_avg_;
+  ExpMovingAverage slow_moving_avg_;
+  LiveFastChangeDetector(double fast_moving_avg_speed, double slow_moving_avg_speed, double change_detection_threshold, bool detect_rising_change, bool detect_falling_change, double initial_value = 0, unsigned int debouncer_min_gap = 300)
+      : fast_moving_avg_(ExpMovingAverage(initial_value, fast_moving_avg_speed)),
+        slow_moving_avg_(ExpMovingAverage(initial_value, slow_moving_avg_speed)),
+        change_detection_threshold_{change_detection_threshold},
+        detect_rising_change_{detect_rising_change},
+        detect_falling_change_{detect_falling_change},
+        output_debouncer_{{debouncer_min_gap}}
+  {
   }
 
-  void SetTimeout(unsigned long ms) {
-    delay_ms_ = ms;
-    times_out_at_ = GetTimeIn(ms);
-  }
-  
-  bool IsOver() {
-    return times_out_at_ <= millis();
+  void SupplyValue(double new_value)
+  {
+    fast_moving_avg_.SupplyValue(new_value);
+    slow_moving_avg_.SupplyValue(new_value);
   }
 
-  
+  bool IsDetectingFastChange()
+  {
+    double change = fast_moving_avg_.GetValue() - slow_moving_avg_.GetValue();
+    double absolute_change = -1;
+    if ((detect_rising_change_ && change > 0) || (detect_falling_change_ && change < 0))
+    {
+      absolute_change = abs(change);
+    }
 
-  void Stop() {
-    delay_ms_ = times_out_at_ - millis();
-    stopped_ = true;
-  }
-
-  void Start() {
-    times_out_at_ = GetTimeIn(delay_ms_);
-    stopped_ = false;
+    return output_debouncer_
+        .SupplyValue(absolute_change > 0 && absolute_change > change_detection_threshold_)
+        .GetValue();
   }
 };
 
+class ThemeDetector
+{
+private:
+  ExpMovingAverage bg_moving_avg_;
+  LiveFastChangeDetector theme_change_detector_;
+  bool last_theme_was_day_ = true;
 
-void setup() {
-  Serial.begin(115200); // Arduino - computer communication
-  bleKeyboard.begin();
-}
-
-void loop() {
-  static ExpMovingAverage leading_sensor_brightness_avg         =       INIT_M_AVG_FOR_PIN(LEADING_PHOTORESISTOR_PIN);
-  static ExpMovingAverage trailing_sensor_brightness_avg        =       INIT_M_AVG_FOR_PIN(TRAILING_PHOTORESISTOR_PIN);
-  static ExpMovingAverage bg_sensor_brightness_avg              =       INIT_M_AVG_FOR_PIN(BG_COLOR_PHOTORESISTOR);
-
-  static ExpMovingAverage slow_leading_sensor_brightness_avg    =       INIT_SLOW_M_AVG_FOR_PIN(LEADING_PHOTORESISTOR_PIN);
-  static ExpMovingAverage slow_trailing_sensor_brightness_avg   =       INIT_SLOW_M_AVG_FOR_PIN(TRAILING_PHOTORESISTOR_PIN);
-  static ExpMovingAverage slow_bg_sensor_brightness_avg         =       INIT_SLOW_M_AVG_FOR_PIN(BG_COLOR_PHOTORESISTOR);
-
-  static bool prev_leading_sensor_cactus_detected                            =       false;
-  static bool prev_trailing_sensor_cactus_detected                           =       false;
-
-  static unsigned long leading_sensor_first_detected_cactus_at_ms     =     0;
-  static unsigned long leading_sensor_stopped_detecting_cactus_at_ms  =     0;
-
-  static unsigned long trailing_sensor_first_detected_cactus_at_ms    =     0;
-  static unsigned long trailing_sensor_stopped_detecting_cactus_at_ms =     0;
-  
-
-  if (millis() % 3) {
-
-    auto leading_read    =  analogRead(LEADING_PHOTORESISTOR_PIN);  // Analog Digital converter value
-    auto trailing_read  =  analogRead(TRAILING_PHOTORESISTOR_PIN);
-    auto bg_read      =  analogRead(BG_PHOTORESISTOR_PIN);
-    
-    leading_sensor_brightness_avg.AddValue(leading_read);
-    trailing_sensor_brightness_avg.AddValue(trailing_read);
-    bg_sensor_brightness_avg.AddValue(bg_read);
-
-    slow_leading_sensor_brightness_avg.AddValue(leading_read);
-    slow_trailing_sensor_brightness_avg.AddValue(trailing_read);
-    slow_bg_sensor_brightness_avg.AddValue(bg_read);
-  }
-
-  bool leading_sensor_detects_cactus = (
-    millis() - leading_sensor_stopped_detecting_cactus_at_ms > CACTUS_DEBOUNCING_GAP_MS
-    &&
-    abs(leading_sensor_brightness_avg.GetValue() - slow_leading_sensor_brightness_avg.GetValue()) > BRIGHTNESS_DELTA_THRESHOLD
-  );
-
-  bool trailing_sensor_detects_cactus = (
-    millis() - trailing_sensor_stopped_detecting_cactus_at_ms > CACTUS_DEBOUNCING_GAP_MS
-    &&
-    abs(trailing_sensor_brightness_avg.GetValue() - slow_trailing_sensor_brightness_avg.GetValue()) > BRIGHTNESS_DELTA_THRESHOLD
-  );
-
-  if (leading_sensor_detects_cactus != prev_leading_sensor_cactus_detected) {
-    if (leading_sensor_detects_cactus) {
-      leading_sensor_first_detected_cactus_at_ms = millis();
-    } else {
-      
+  void UpdateLastTheme()
+  {
+    if (!IsCurrentThemeSwitching())
+    {
+      last_theme_was_day_ = IsCurrentThemeDay();
     }
   }
 
-  
+public:
+  ThemeDetector(double current_bg_value) : bg_moving_avg_(ExpMovingAverage(current_bg_value, 0.2)), theme_change_detector_(0.2, 0.1, DINO_MOVING_AVG_THRESHOLD, true, true, current_bg_value)
+  {
+    UpdateLastTheme();
+  }
+
+  void SupplyBgValue(unsigned int value)
+  {
+    UpdateLastTheme();
+    bg_moving_avg_.SupplyValue(value);
+    theme_change_detector_.SupplyValue(value);
+  }
+
+  bool IsCurrentThemeSwitching()
+  {
+    theme_change_detector_.IsDetectingFastChange();
+  }
+
+  bool IsCurrentThemeDay()
+  {
+    return !IsCurrentThemeSwitching() && bg_moving_avg_.GetValue() > DAY_THEME_THRESHOLD;
+  }
+
+  bool IsCurrentThemeNight()
+  {
+    return !IsCurrentThemeDay();
+  }
+
+  bool WasPrevThemeDay()
+  {
+    return last_theme_was_day_;
+  }
+};
+
+void setup()
+{
+  Serial.begin(115200);
+  bleKeyboard.begin();
+
+  SetupMovingAverages();
+
+  xTaskCreate(DinoCactiTrackerTask, "Dino cacti tracker task", 3000, NULL, 1, NULL);
+  xTaskCreate(UpdateMovingAveragesTask, "Moving averages", 3000, NULL, 1, NULL);
+  xTaskCreate(DinoControllerTask, "Dino controller", 3000, NULL, 1, NULL);
+}
+
+void SetupMovingAverages()
+{
+  cactus_start_detector_light_theme = new LiveFastChangeDetector(0.3, 0.1, DINO_MOVING_AVG_THRESHOLD, false, true, analogRead(MAIN_PHOTORESISTOR_PIN));
+  cactus_start_detector_dark_theme = new LiveFastChangeDetector(0.3, 0.1, DINO_MOVING_AVG_THRESHOLD, true, false, analogRead(MAIN_PHOTORESISTOR_PIN));
+
+  cactus_lagged_start_detector_light_theme = new LiveFastChangeDetector(0.3, 0.1, DINO_MOVING_AVG_THRESHOLD, false, true, analogRead(LAGGED_PHOTORESISTOR_PIN));
+  cactus_lagged_start_detector_dark_theme = new LiveFastChangeDetector(0.3, 0.1, DINO_MOVING_AVG_THRESHOLD, true, false, analogRead(LAGGED_PHOTORESISTOR_PIN));
+
+  cactus_end_detector_light_theme = new LiveFastChangeDetector(0.3, 0.1, DINO_MOVING_AVG_THRESHOLD, true, false, analogRead(MAIN_PHOTORESISTOR_PIN));
+  cactus_end_detector_dark_theme = new LiveFastChangeDetector(0.3, 0.1, DINO_MOVING_AVG_THRESHOLD, false, true, analogRead(MAIN_PHOTORESISTOR_PIN));
+
+  theme_detector = new ThemeDetector(analogRead(THEME_DETECOR_PIN));
+
+}
+
+void UpdateMovingAveragesTask(void *pvParameters)
+{
+  for (;;)
+  {
+    int analog_read_val = analogRead(MAIN_PHOTORESISTOR_PIN);
+    int lagged_analog_read_val = analogRead(LAGGED_PHOTORESISTOR_PIN);
+
+    cactus_start_detector_light_theme->SupplyValue(analog_read_val);
+    cactus_start_detector_dark_theme->SupplyValue(analog_read_val);
+
+    cactus_end_detector_light_theme->SupplyValue(analog_read_val);
+    cactus_lagged_start_detector_light_theme->SupplyValue(lagged_analog_read_val);
+
+    cactus_end_detector_dark_theme->SupplyValue(analog_read_val);
+    cactus_lagged_start_detector_dark_theme->SupplyValue(lagged_analog_read_val);
+
+    theme_detector->SupplyBgValue(analogRead(THEME_DETECOR_PIN));
+
+    vTaskDelay(10);
+  }
+}
+
+void DinoControllerTask(void *pvParameters)
+{
+  bool last_was_key_up = false;
+  bleKeyboard.press(KEY_DOWN_ARROW);
+  for (;;)
+  {
+
+    // while (!bleKeyboard.isConnected())
+    // {
+    //   vTaskDelay(5000 / portTICK_PERIOD_MS);
+    //   Serial.println("Waiting for bluetooth connection...");
+    // }
+
+    Serial.println(future_jumps.isEmpty() ? 0 : future_jumps.getHead().takeoff_time);
+
+    if (!future_jumps.isEmpty() && future_jumps.getHead().takeoff_time <= millis())
+    {
+      bleKeyboard.releaseAll();
+      bleKeyboard.write(KEY_UP_ARROW);
+      auto current_jump = future_jumps.dequeue();
+      unsigned int jump_time = constrain(current_jump.landing_time - current_jump.takeoff_time, 100, 200) + EXTRA_JUMP_TIME_MS;
+      vTaskDelay(jump_time);
+      bleKeyboard.press(KEY_DOWN_ARROW);
+    }
+
+    vTaskDelay(10);
+  }
+}
+
+void DinoCactiTrackerTask(void *pvParameters)
+{
+  bool last_was_key_up = false;
+  unsigned int last_cactus_start_time = 0;
+  unsigned int last_cactus_end_time = 0;
+  unsigned int last_lagged_cactus_start_time = 0;
+  ExpMovingAverage *game_speed = nullptr;
+  for (;;)
+  {
+    if (last_cactus_start_time == 0 && (
+      (theme_detector->IsCurrentThemeDay() && cactus_start_detector_light_theme->IsDetectingFastChange()) 
+      || 
+      (theme_detector->IsCurrentThemeNight() && cactus_start_detector_dark_theme->IsDetectingFastChange()) 
+      )
+    )
+    {
+      last_cactus_start_time = millis();
+    }
+
+    if (last_cactus_end_time == 0 && (
+      (theme_detector->IsCurrentThemeDay() && cactus_end_detector_light_theme->IsDetectingFastChange()) 
+      || 
+      (theme_detector->IsCurrentThemeNight() && cactus_end_detector_dark_theme->IsDetectingFastChange()) 
+      )
+    )
+    {
+      last_cactus_end_time = millis();
+    }
+
+    if (
+        last_cactus_start_time != 0 &&
+        last_lagged_cactus_start_time == 0 && 
+        (
+          (theme_detector->IsCurrentThemeDay() && cactus_lagged_start_detector_light_theme->IsDetectingFastChange()) 
+          || 
+          (theme_detector->IsCurrentThemeNight() && cactus_lagged_start_detector_dark_theme->IsDetectingFastChange())
+        )
+      )
+    {
+      last_lagged_cactus_start_time = millis();
+    }
+
+    if (
+      last_cactus_end_time != 0 && 
+      last_cactus_start_time != 0 && 
+      last_lagged_cactus_start_time != 0)
+    {
+      int diff = last_lagged_cactus_start_time - last_cactus_start_time;
+      int time_from_first_photoresistor_to_dino = constrain(diff * PHOTORESISTORS_DISTANCE_TO_DINO_DISTANCE_RATIO, 50, 1000);
+
+      if (game_speed == nullptr)
+      {
+        game_speed = new ExpMovingAverage{time_from_first_photoresistor_to_dino, 0.1};
+      }
+      game_speed->SupplyValue((double)time_from_first_photoresistor_to_dino);
+
+      Serial.println(game_speed->GetSpeed());
+
+      future_jumps.enqueue(Jump{last_cactus_start_time + game_speed->GetSpeed() * PHOTORESISTORS_DISTANCE_TO_DINO_DISTANCE_RATIO, last_cactus_end_time + game_speed->GetSpeed() * PHOTORESISTORS_DISTANCE_TO_DINO_DISTANCE_RATIO});
+      last_cactus_start_time = 0;
+      last_cactus_end_time = 0;
+      last_lagged_cactus_start_time = 0;
+    }
+
+    vTaskDelay(10);
+  }
+}
+
+void loop()
+{
 }
