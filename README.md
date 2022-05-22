@@ -28,7 +28,9 @@ An esp32 receives signals from photoresistors to make the dino jump over cacti
 ## Electronics
 - esp32
 - 3 photoresistors
-- 3 capacitors of 100µf
+- 2 capacitors
+  - 2 of 100nf
+  - 1 of 440µf
 - microphone vma309
 - oled monitor ssd1306
 
@@ -62,3 +64,5 @@ https://www.velleman.eu/products/view/?id=435532
 ### ssd1306
 https://surplustek.ca/128x64-iic-spi-serie-blanc-ecran-oled-module-i2c-conseil-ecran-lcd-0-96-ssd1306-pour-arduino-stm32-51-oled-i2c
 
+### capacitors
+https://www.amazon.com/BOJACK-Ceramic-Capacitor-Assortment-Capacitors/dp/B07P7HRGT9/ref=sr_1_25?keywords=100nf+capacitor&qid=1653238245&sr=8-25
