@@ -31,10 +31,8 @@ The esp32
 
 components           |  title2
 :-------------------------:|:-------------------------:
-- the 3 photoresistors:
-      - the first detects the first passage of the cactus
-      - the second detects the second passage of the cactus
-      - the third detects the state of the background (day/night)| cell2
+the 3 photoresistors:
+   the first detects the first passage of the cactus, the second detects the second passage of the cactus, the third detects the state of the background (day/night) | cell2
 
     - the 3 photoresistors:
       - the first detects the first passage of the cactus
