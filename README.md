@@ -16,14 +16,6 @@ Dino automatically jumps over cacti & ducks to the beat.
 4. Start the game by pressing space bar or arrow key up
 
 
-with photoresistors ,
-            a microphone hearing music,
-An esp32 receives signals from photoresistors to make the dino jump over cacti 
-                                            & microphone to make the dino duck at the beat of music.
-
-
-
-
 ## Electronics
 ![Visualization of the PCB](./media/PCB_PCB_New_Project_2022-05-22_2.svg)
 
@@ -45,6 +37,7 @@ The esp32
       - the third detects the state of the background (day/night)
       
       & calculates the interval between the 2 passages to get the speed
+      
       & sends the keyboard command arrow up to make the dino jump
       
     - a microphone
