@@ -43,9 +43,12 @@ The esp32
       - the first detects the first passage of the cactus
       - the second detects the second passage of the cactus
       - the third detects the state of the background (day/night)
+      
       & calculates the interval between the 2 passages to get the speed
       & sends the keyboard command arrow up to make the dino jump
+      
     - a microphone
+    
       & sends the keyboard command arrow down to make the dino duck if a beat is detected
 
 ### esp32
