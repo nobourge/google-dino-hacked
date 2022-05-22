@@ -14,6 +14,8 @@
 
 #define DAY_THEME_THRESHOLD 400
 
+#define MICRO_PIN 35
+
 struct Jump
 {
   unsigned long takeoff_time;
@@ -38,7 +40,7 @@ LiveFastChangeDetector *cactus_end_detector_light_theme;
 LiveFastChangeDetector *cactus_end_detector_dark_theme;
 
 ThemeDetector *theme_detector;
-
+bool is_in_the_air = false;
 
 ArduinoQueue<Jump> future_jumps(20);
 
@@ -225,6 +227,7 @@ void setup()
   xTaskCreate(DinoCactiTrackerTask, "Dino cacti tracker task", 3000, NULL, 1, NULL);
   xTaskCreate(UpdateMovingAveragesTask, "Moving averages", 3000, NULL, 1, NULL);
   xTaskCreate(DinoControllerTask, "Dino controller", 3000, NULL, 1, NULL);
+  xTaskCreate(DancingDinoTask, "Dance task", 3000, NULL, 1, NULL);
 }
 
 void SetupMovingAverages()
@@ -241,6 +244,9 @@ void SetupMovingAverages()
   theme_detector = new ThemeDetector(analogRead(THEME_DETECOR_PIN));
 
 }
+
+
+
 
 void UpdateMovingAveragesTask(void *pvParameters)
 {
@@ -267,7 +273,7 @@ void UpdateMovingAveragesTask(void *pvParameters)
 void DinoControllerTask(void *pvParameters)
 {
   bool last_was_key_up = false;
-  bleKeyboard.press(KEY_DOWN_ARROW);
+  // bleKeyboard.press(KEY_DOWN_ARROW);
   for (;;)
   {
 
@@ -277,21 +283,40 @@ void DinoControllerTask(void *pvParameters)
     //   Serial.println("Waiting for bluetooth connection...");
     // }
 
-    Serial.println(future_jumps.isEmpty() ? 0 : future_jumps.getHead().takeoff_time);
-
     if (!future_jumps.isEmpty() && future_jumps.getHead().takeoff_time <= millis())
     {
+      is_in_the_air = true;
       bleKeyboard.releaseAll();
       bleKeyboard.write(KEY_UP_ARROW);
       auto current_jump = future_jumps.dequeue();
       unsigned int jump_time = constrain(current_jump.landing_time - current_jump.takeoff_time, 100, 200) + EXTRA_JUMP_TIME_MS;
       vTaskDelay(jump_time);
-      bleKeyboard.press(KEY_DOWN_ARROW);
+      bleKeyboard.releaseAll();
+      is_in_the_air = false;
+      // bleKeyboard.press(KEY_DOWN_ARROW);
     }
 
     vTaskDelay(10);
   }
 }
+
+
+void DancingDinoTask(void *pvParameters) 
+{
+  pinMode(MICRO_PIN, INPUT);
+  for (;;) {
+    Serial.println(digitalRead(MICRO_PIN));
+    if (digitalRead(MICRO_PIN) && !is_in_the_air) {
+      bleKeyboard.press(KEY_DOWN_ARROW);
+      vTaskDelay(100);
+      if (!is_in_the_air && !digitalRead(MICRO_PIN)) {
+        bleKeyboard.releaseAll();
+      }
+    }
+    vTaskDelay(1);
+  }
+}
+
 
 void DinoCactiTrackerTask(void *pvParameters)
 {
@@ -348,8 +373,6 @@ void DinoCactiTrackerTask(void *pvParameters)
         game_speed = new ExpMovingAverage{time_from_first_photoresistor_to_dino, 0.1};
       }
       game_speed->SupplyValue((double)time_from_first_photoresistor_to_dino);
-
-      Serial.println(game_speed->GetSpeed());
 
       future_jumps.enqueue(Jump{last_cactus_start_time + game_speed->GetSpeed() * PHOTORESISTORS_DISTANCE_TO_DINO_DISTANCE_RATIO, last_cactus_end_time + game_speed->GetSpeed() * PHOTORESISTORS_DISTANCE_TO_DINO_DISTANCE_RATIO});
       last_cactus_start_time = 0;
