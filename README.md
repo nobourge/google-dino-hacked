@@ -15,15 +15,6 @@ Dino automatically jumps over cacti & ducks to the beat.
 3. Play some good beating music
 4. Start the game by pressing space bar or arrow key up
 
-
-with photoresistors ,
-            a microphone hearing music,
-An esp32 receives signals from photoresistors to make the dino jump over cacti 
-                                            & microphone to make the dino duck at the beat of music.
-
-
-
-
 ## Electronics
 ![Visualization of the PCB](./media/PCB_PCB_New_Project_2022-05-22_2.svg)
 
@@ -32,22 +23,30 @@ An esp32 receives signals from photoresistors to make the dino jump over cacti
 - 2 capacitors
   - 2 of 100nf
   - 1 of 440µf
-- microphone vma309
-- oled monitor ssd1306
+- microphone vma309 (renamed WPSE309)
+- oled monitor ssd1306 (128*64)
 
 The esp32 
   - receives the signal from
+
+components           |  title2
+:-------------------------:|:-------------------------:
+- the 3 photoresistors:
+      - the first detects the first passage of the cactus
+      - the second detects the second passage of the cactus
+      - the third detects the state of the background (day/night)| cell2
+
     - the 3 photoresistors:
-      - the first detects the first passage of the cacti
-      - the second detects the second passage of the cacti
+      - the first detects the first passage of the cactus
+      - the second detects the second passage of the cactus
       - the third detects the state of the background (day/night)
   - calculates the interval between the 2 passages to get the speed
   - sends the keyboard command arrow up to make the dino jump
-    - a microphone vma309 
+    - a microphone
   - sends the keyboard command arrow down to make the dino duck
 
 ### esp32
-Please follow the instructions here to use correctly the ESP32 socket:
+Please follow the instructions here to use correctly the ESP32:
 https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide-windows-instructions/#:~:text=Installing%20ESP32%20Add%2Don%20in%20Arduino%20IDE&text=Open%20the%20Boards%20Manager.,installed%20after%20a%20few%20seconds.
 
 I2C LCD Interface:
