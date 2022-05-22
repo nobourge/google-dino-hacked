@@ -30,7 +30,7 @@ An esp32 receives signals from photoresistors to make the dino jump over cacti
 - 3 photoresistors
 - 3 capacitors of 100µf
 - microphone vma309
-- oled monitor
+- oled monitor ssd1306
 
 The esp32 
   - receives the signal from
@@ -57,5 +57,8 @@ https://github.com/T-vK/ESP32-BLE-Keyboard/releases#:~:text=ESP32%2DBLE%2DKeyboa
 When running on arduino, go to "Tools/serial plotter" to watch the signal coming from the photo-resistors 
 
 ### vma309
+https://www.velleman.eu/products/view/?id=435532
 
+### ssd1306
+https://surplustek.ca/128x64-iic-spi-serie-blanc-ecran-oled-module-i2c-conseil-ecran-lcd-0-96-ssd1306-pour-arduino-stm32-51-oled-i2c
 
