@@ -23,10 +23,11 @@ Dino automatically jumps over cacti & ducks to the beat.
 
 - esp32
 - 3 photoresistors
-- 2 capacitors
+- 3 capacitors
   - 2 of 100nf
   - 1 of 440µf
 - microphone vma309 (renamed WPSE309)
+- 3 2.7kΩ resistors
 - oled monitor ssd1306 (128*64)
 
 The esp32 
