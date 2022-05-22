@@ -28,20 +28,14 @@ Dino automatically jumps over cacti & ducks to the beat.
 
 The esp32 
   - receives the signal from
-
-components           |  title2
-:-------------------------:|:-------------------------:
-the 3 photoresistors:
-   the first detects the first passage of the cactus, the second detects the second passage of the cactus, the third detects the state of the background (day/night) | cell2
-
     - the 3 photoresistors:
       - the first detects the first passage of the cactus
       - the second detects the second passage of the cactus
       - the third detects the state of the background (day/night)
-  - calculates the interval between the 2 passages to get the speed
-  - sends the keyboard command arrow up to make the dino jump
+      & calculates the interval between the 2 passages to get the speed
+      & sends the keyboard command arrow up to make the dino jump
     - a microphone
-  - sends the keyboard command arrow down to make the dino duck
+      & sends the keyboard command arrow down to make the dino duck if a beat is detected
 
 ### esp32
 Please follow the instructions here to use correctly the ESP32:
