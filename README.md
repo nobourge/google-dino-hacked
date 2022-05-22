@@ -6,8 +6,8 @@ google dino game : https://dino-chrome.com/en
 Dino automatically jumps over cacti & ducks to the beat.
 
 ### Links to videos 
-* https://youtu.be/JOFl63-6Mqc
-* https://youtu.be/I-8QXEF8-pc
+* ![New Order - Blue Monday](https://youtu.be/JOFl63-6Mqc)
+* ![Future Islands - The Chase](https://youtu.be/I-8QXEF8-pc)
 
 ### How
 1. Place the photoresistors in front of the screen, aligned with the future path of the dino
