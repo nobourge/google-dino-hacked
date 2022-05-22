@@ -15,30 +15,41 @@ Dino automatically jumps over cacti & ducks to the beat.
 3. Play some good beating music
 4. Start the game by pressing space bar or arrow key up
 
+
+with photoresistors ,
+            a microphone hearing music,
+An esp32 receives signals from photoresistors to make the dino jump over cacti 
+                                            & microphone to make the dino duck at the beat of music.
+
+
+
+
 ## Electronics
 ![Visualization of the PCB](./media/PCB_PCB_New_Project_2022-05-22_2.svg)
+
+<img width="1377" alt="Screenshot 2022-05-22 at 20 31 10" src="https://user-images.githubusercontent.com/15067909/169710320-fcb09ed5-d1d1-4315-9a51-7face693a60b.png">
 
 - esp32
 - 3 photoresistors
 - 2 capacitors
   - 2 of 100nf
   - 1 of 440µf
-- microphone vma309 (renamed WPSE309)
-- oled monitor ssd1306 (128*64)
+- microphone vma309
+- oled monitor ssd1306
 
 The esp32 
   - receives the signal from
     - the 3 photoresistors:
-      - the first detects the first passage of the cactus
-      - the second detects the second passage of the cactus
+      - the first detects the first passage of the cacti
+      - the second detects the second passage of the cacti
       - the third detects the state of the background (day/night)
-      & calculates the interval between the 2 passages to get the speed
-      & sends the keyboard command arrow up to make the dino jump
-    - a microphone
-      & sends the keyboard command arrow down to make the dino duck if a beat is detected
+  - calculates the interval between the 2 passages to get the speed
+  - sends the keyboard command arrow up to make the dino jump
+    - a microphone vma309 
+  - sends the keyboard command arrow down to make the dino duck
 
 ### esp32
-Please follow the instructions here to use correctly the ESP32:
+Please follow the instructions here to use correctly the ESP32 socket:
 https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide-windows-instructions/#:~:text=Installing%20ESP32%20Add%2Don%20in%20Arduino%20IDE&text=Open%20the%20Boards%20Manager.,installed%20after%20a%20few%20seconds.
 
 I2C LCD Interface:
