@@ -8,6 +8,7 @@ Dino automatically jumps over cacti & ducks to the beat.
 ### Links to videos 
 * [Dino ducks to Future Islands - The Chase](https://youtu.be/I-8QXEF8-pc)
 * [Dino ducks to New Order - Blue Monday](https://youtu.be/JOFl63-6Mqc)
+* [google dino jumps over cacti and ducks to the beat (Darude - Sandstorm)](https://www.youtube.com/watch?v=XGvUvMnE9nQ) : https://www.youtube.com/watch?v=XGvUvMnE9nQ
 
 ### How
 1. Place the photoresistors in front of the screen, aligned with the future path of the dino
