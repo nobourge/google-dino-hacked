@@ -23,9 +23,10 @@ An esp32 receives signals from photoresistors to make the dino jump over cacti
 
 
 
-![Visualization of the repository visualizer diagram](./diagram.svg)
 
 ## Electronics
+![Visualization of the PCB](./media/PCB_PCB_New_Project_2022-05-22_2.pdf)
+
 - esp32
 - 3 photoresistors
 - 2 capacitors
